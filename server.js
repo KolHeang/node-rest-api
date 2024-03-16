@@ -8,14 +8,27 @@ const pool = new Pool({
     database: "postgres"
 });
 
-const getStaff = (req,res) => {
-        pool.query("SELECT * FROM employee ORDER BY emp_id  DESC",(error,results)=>{
-        if(error)
-        {
-            throw error;
-        }
+// const getStaff = (req,res) => {
+//         pool.query("SELECT * FROM employee ORDER BY emp_id  DESC",(error,results)=>{
+//         if(error)
+//         {
+//             throw error;
+//         }
+//         res.status(200).json({'status':200,'total':results.rowCount,'result':results.rows});
+//     })
+// }
+const getStaff = async (req,res) => {
+    try
+    {
+        const query = "SELECT * FROM employee ORDER BY emp_id  DESC";
+        const results = await pool.query(query);
         res.status(200).json({'status':200,'total':results.rowCount,'result':results.rows});
-    })
+    }
+    catch(err)
+    {
+        console.error(err);
+        res.status(500).send('failed');
+    }
 }
 
 const getStaffId = (req,res) => {
@@ -37,8 +50,22 @@ const addStaff = (req,res)=>{
         {
             throw error;
         }
-        res.status(200).send(`insert employee: ${results.insertId}`);
+        res.status(200).send(`insert employee: ${results.emp_id}`);
     });
+}
+
+const updateStaff = (req,res)=>{
+    const id=parseInt(req.params.id)
+    const { firstName,lastName,gender,birthdate,email,salary}=req.body
+    try
+    {
+        pool.query("UPDATE employee SET first_name=$1, last_name=$2, gender=$3, birthdate=$4, email=$5, salary=$6 WHERE emp_id=$7");
+    }
+    catch(err)
+    {
+        console.error(err);
+        res.status(500).send('failed');
+    }
 }
 
 module.exports={
