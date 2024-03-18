@@ -7,7 +7,10 @@ const message = new error.Messages;
 const getStaff = async (req,res) => {
     try
     {
-        const result = await DB.query("SELECT * FROM employee ORDER BY emp_id DESC");
+        const page = req.query.page || null; // Default to page 1 if not specified
+        const show = req.query.show || null; // Default to 10 items per page if not specified
+        const offset = (page - 1) * show;
+        const result = await DB.query("SELECT * FROM employee ORDER BY emp_id DESC limit $1 offset $2 ",[show,offset]);
         res.status(200).json(message.success(result));
     }
     catch(err)
